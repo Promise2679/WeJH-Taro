@@ -1,6 +1,6 @@
 <template>
   <theme-config>
-    <title-bar title="借阅信息" back-button />
+    <title-bar title="借阅信息" :back-button="true" />
     <scroll-view :scroll-y="true">
       <view class="header-view">
         <image src="@/assets/photos/library.svg" />
@@ -24,16 +24,10 @@
           <view class="col" />
           <view class="col">
             <view class="swicher">
-              <w-button
-                :class="{ 'button-not-active': !isSelectToday }"
-                @tap="todayClick"
-              >
+              <w-button :class="{ 'button-not-active': !isSelectToday }" @tap="todayClick">
                 当前
               </w-button>
-              <w-button
-                :class="{ 'button-not-active': !isSelectHistory }"
-                @tap="historyClick"
-              >
+              <w-button :class="{ 'button-not-active': !isSelectHistory }" @tap="historyClick">
                 历史
               </w-button>
             </view>
@@ -44,16 +38,17 @@
         </template>
         <view>
           <view class="flex-column">
-            <card v-if="!borrowList.length" class="no-item">
-              无借阅记录
-            </card>
+            <card v-if="!borrowList.length" class="no-item"> 无借阅记录 </card>
             <card
               v-for="(item, index) in borrowList"
               :key="index"
               class="book-card"
-              :style="{
-                '--bg-color': index % 2 ? 'var(--wjh-color-primary-dark)' : 'var(--wjh-color-primary)'
-              } as CSSProperties"
+              :style="
+                {
+                  '--bg-color':
+                    index % 2 ? 'var(--wjh-color-primary-dark)' : 'var(--wjh-color-primary)'
+                } as CSSProperties
+              "
             >
               <view class="book-name">
                 {{ item.title }}
@@ -82,12 +77,14 @@
 
 <script setup lang="ts">
 import "./index.scss";
-import { computed, onMounted, ref, CSSProperties } from "vue";
+
+import dayjs from "dayjs";
+import { computed, CSSProperties, onMounted, ref } from "vue";
+
 import { Card, RefreshButton, ThemeConfig, TitleBar, WButton } from "@/components";
 import { LibraryService } from "@/services";
 import { serviceStore } from "@/store";
 import { BorrowBooksInfo } from "@/types/BorrowBooksInfo";
-import dayjs from "dayjs";
 
 const isSelectToday = ref(true);
 const isSelectHistory = ref(false);
@@ -109,18 +106,16 @@ const history = computed(() => {
 });
 
 const current = computed(() => {
-  return serviceStore.library.current ?? [];
+  return serviceStore.library.current;
 });
 
 const currentCount = computed(() => {
-  return current.value ? current.value.length : 0;
+  return current.value.length;
 });
 
 /** 超期本数 */
 const currentExpiredCount = computed(() => {
-  const expired = current.value.filter((item) =>
-    dayjs(item.normReturnDate).isBefore(dayjs())
-  );
+  const expired = current.value.filter((item) => dayjs(item.normReturnDate).isBefore(dayjs()));
 
   return expired.length;
 });
