@@ -25,8 +25,9 @@ import "./index.scss";
 
 import Taro from "@tarojs/taro";
 import dayjs from "dayjs";
-import { computed, CSSProperties } from "vue";
+import { computed, CSSProperties, onMounted } from "vue";
 
+import { LibraryService } from "@/services";
 import { serviceStore } from "@/store";
 
 import Card from "../Card/index.vue";
@@ -40,6 +41,10 @@ const borrowUpdateTimeString = computed(() => {
 
 const current = computed(() => {
   return serviceStore.library.current;
+});
+
+onMounted(() => {
+  LibraryService.getLibraryCurrent();
 });
 
 function nav() {
