@@ -84,15 +84,21 @@ const updateTimeString = computed(() => {
  */
 const filteredExamItems = computed(() => {
   let list: Exam[] = [];
-  const exam = ZFService.getExamInfo(selectTerm.value).data;
+  let exam: Exam[] | null;
   try {
-    list = exam.filter((item) => {
-      if (item.examTime === "未放开不可查") return 0;
-      const { date, start } = getExamTime(item.examTime);
-      // 距离考试的剩余时间(ms)，为正表示考试为开始，为负表示考试结束
-      const resDay = timeUtils.getDayInterval(new Date(`${date} ${start}:00`));
-      return resDay <= 3 && resDay >= 0 && examState(item.examTime) !== "after";
-    });
+    exam = ZFService.getExamInfo(selectTerm.value).data;
+  } catch {
+    exam = null;
+  }
+  try {
+    list =
+      exam?.filter((item) => {
+        if (item.examTime === "未放开不可查") return 0;
+        const { date, start } = getExamTime(item.examTime);
+        // 距离考试的剩余时间(ms)，为正表示考试为开始，为负表示考试结束
+        const resDay = timeUtils.getDayInterval(new Date(`${date} ${start}:00`));
+        return resDay <= 3 && resDay >= 0 && examState(item.examTime) !== "after";
+      }) ?? [];
   } catch (e) {
     console.error(e);
   }
