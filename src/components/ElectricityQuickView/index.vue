@@ -8,7 +8,7 @@
       <view v-if="!loading" class="text-wrapper">
         <text>寝室剩余电量</text>
         <text :class="isUrgent ? 'dangerous' : 'normal'">
-          {{ balanceData?.data.soc || 0 }}
+          {{ balance || 0 }}
         </text>
         <text>度</text>
       </view>
@@ -36,12 +36,7 @@ function nav2electricity() {
 }
 const campus = computed(() => serviceStore.electricity.electricityCampus);
 
-const {
-  data: balanceData,
-  loading,
-  error,
-  run
-} = useRequest(YxyService.queryBalance, {
+const { loading, error, run } = useRequest(YxyService.queryBalance, {
   manual: true,
   onSuccess: (res) => {
     if (res.data.data.soc) {
@@ -61,13 +56,17 @@ watch(
   { immediate: true }
 );
 
+const balance = computed(() => {
+  return serviceStore.electricity.balance;
+});
+
 const isUrgent = computed(() => {
-  if (balanceData.value) return balanceData.value.data.soc < 20;
+  if (balance.value) return balance.value < 20;
   return false;
 });
 
 const updateTimeString = computed(() => {
   const time = serviceStore.electricity.updateTime.balance;
-  return !error.value ? dayjs(time).fromNow() : "更新失败";
+  return !(error instanceof Error) ? dayjs(time).fromNow() : "更新失败";
 });
 </script>
